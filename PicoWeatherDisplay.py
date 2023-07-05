@@ -17,6 +17,11 @@ GND - GND
 import machine
 import st7789py as st7789
 from fonts import vga1_16x32 as font1
+from fonts import vga1_16x32 as font1
+import chango_64 as c64
+import boot
+
+print ("main")
 
 spi1_sck=10
 spi1_mosi=11
@@ -30,5 +35,14 @@ display = st7789.ST7789(spi1, disp_width, disp_height,
                           dc=machine.Pin(st7789_dc, machine.Pin.OUT),
                           rotation=0)
 
-display.text(font1, "Welcome!", 20, 140, st7789.GREEN, st7789.BLACK)
 
+def main():
+  print(boot.newip)
+  display.text(font1, "Welcome!", 20, 40, st7789.GREEN, st7789.BLACK)
+  print(boot.newip[0])
+  
+  display.text(font1, boot.newip[0], 20, 60, st7789.GREEN, st7789.BLACK)
+  display.write(c64, boot.newip[0], 20, 60, st7789.GREEN, st7789.BLACK)
+
+if __name__ == "__main__":
+    main()

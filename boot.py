@@ -6,7 +6,10 @@ print("Boot!");
 SSID = "BrandstorpWifi"
 SSI_PASSWORD = "Brandstorp"
 
+
+
 def do_connect():
+  def __init__ (self):
     import network
     sta_if = network.WLAN(network.STA_IF)
     if not sta_if.isconnected():
