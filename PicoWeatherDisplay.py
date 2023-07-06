@@ -17,7 +17,7 @@ GND - GND
 import machine
 import st7789py as st7789
 from fonts import vga1_16x32 as font1
-from fonts import vga1_16x32 as font1
+import chango_32 as c32
 import chango_64 as c64
 import boot
 
@@ -43,6 +43,8 @@ def main():
   
   display.text(font1, boot.newip[0], 20, 60, st7789.GREEN, st7789.BLACK)
   display.write(c64, boot.newip[0], 20, 60, st7789.GREEN, st7789.BLACK)
+  display.write(c32, boot.newip[0], 20, 120, st7789.GREEN, st7789.BLACK)
+
 
 if __name__ == "__main__":
     main()
