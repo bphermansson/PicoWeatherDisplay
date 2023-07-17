@@ -28,19 +28,18 @@ from ucollections import namedtuple
 import uwebsockets.client
 import json
 import time
-
+import config
 
 URL_RE = re.compile(r'http://([A-Za-z0-9\-\.]+)(?:\:([0-9]+))?(/.+)?')
 URI = namedtuple('URI', ('hostname', 'port', 'path'))
 
-token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI3YWQyZmQ0Y2U5NDA0ZDVkYjMzYTBhZWU1ZGQ2ODc4MCIsImlhdCI6MTY4ODYyNTkyMiwiZXhwIjoyMDAzOTg1OTIyfQ.rqs1s21lNIPPovpAjEP5wMvKOpTFdJdML-4LikOcc4Y"
-host = "192.168.1.10"
-port = 8123
-cache = {}
-entities = [
+
+#cache = {}
+'''entities = [
     "sensor.tempwithms",
     "sensor.satenas_luftfuktighet"
 ]
+'''
 
 print ("main")
 
@@ -63,8 +62,8 @@ def urlparse(uri):
         return URI(match.group(1), int(match.group(2)), match.group(3))
 
 def connect():
-  uri = "http://192.168.1.10:8123/api/websocket"
-  uri = urlparse(uri)
+  #uri = "http://192.168.1.10:8123/api/websocket"
+  uri = urlparse(config.host)
   print(uri)
   assert uri
   path = uri.path or '/' + 'socket.io/?EIO=3'
@@ -80,7 +79,7 @@ def connect():
     greeting = websocket.recv()
     print("< {}".format(greeting))
     
-    tokenmess = "{\"type\":\"auth\",\"access_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI3YWQyZmQ0Y2U5NDA0ZDVkYjMzYTBhZWU1ZGQ2ODc4MCIsImlhdCI6MTY4ODYyNTkyMiwiZXhwIjoyMDAzOTg1OTIyfQ.rqs1s21lNIPPovpAjEP5wMvKOpTFdJdML-4LikOcc4Y\"}"
+    tokenmess = "{\"type\":\"auth\",\"access_token\":\"" + config.token + "\"}"    
     print (tokenmess)    
     websocket.send(tokenmess)
     resp = websocket.recv()
@@ -93,12 +92,13 @@ def connect():
     resp = websocket.recv()
     print("< {}".format(resp))
 
-    
+    '''
+    # We cant fetch all states, the response message is to large
     statemess = "{\"id\": 21, \"type\": \"get_states\"}"
     #mess = "{\"id\": 22, \"type\": \"subscribe_events\"}"
     print (statemess)    
     websocket.send(statemess)
-    resp = websocket.recvfrom()
+    resp = websocket.recv()
     print("< {}".format(resp))
     
 
@@ -108,7 +108,6 @@ def connect():
     websocket.send(mess)
     resp = websocket.recv()
     print("< {}".format(resp))
-    '''
 
     while True:
       message = websocket.recv() # This is blocking
