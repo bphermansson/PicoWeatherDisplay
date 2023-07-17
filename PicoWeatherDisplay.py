@@ -26,6 +26,9 @@ import boot
 import ure as re
 from ucollections import namedtuple
 import uwebsockets.client
+import json
+import time
+
 
 URL_RE = re.compile(r'http://([A-Za-z0-9\-\.]+)(?:\:([0-9]+))?(/.+)?')
 URI = namedtuple('URI', ('hostname', 'port', 'path'))
@@ -77,42 +80,65 @@ def connect():
     greeting = websocket.recv()
     print("< {}".format(greeting))
     
-    mess = "{\"type\":\"auth\",\"access_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI3YWQyZmQ0Y2U5NDA0ZDVkYjMzYTBhZWU1ZGQ2ODc4MCIsImlhdCI6MTY4ODYyNTkyMiwiZXhwIjoyMDAzOTg1OTIyfQ.rqs1s21lNIPPovpAjEP5wMvKOpTFdJdML-4LikOcc4Y\"}"
-    print (mess)    
-    websocket.send(mess)
+    tokenmess = "{\"type\":\"auth\",\"access_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI3YWQyZmQ0Y2U5NDA0ZDVkYjMzYTBhZWU1ZGQ2ODc4MCIsImlhdCI6MTY4ODYyNTkyMiwiZXhwIjoyMDAzOTg1OTIyfQ.rqs1s21lNIPPovpAjEP5wMvKOpTFdJdML-4LikOcc4Y\"}"
+    print (tokenmess)    
+    websocket.send(tokenmess)
     resp = websocket.recv()
     print("< {}".format(resp))
     
     # Try a ping response:
-    mess = "{\"id\": 1,\"type\": \"ping\"}"
-    print (mess)    
-    websocket.send(mess)
+    pingmess = "{\"id\": 1,\"type\": \"ping\"}"
+    print (pingmess)    
+    websocket.send(pingmess)
     resp = websocket.recv()
     print("< {}".format(resp))
 
+    
+    statemess = "{\"id\": 21, \"type\": \"get_states\"}"
+    #mess = "{\"id\": 22, \"type\": \"subscribe_events\"}"
+    print (statemess)    
+    websocket.send(statemess)
+    resp = websocket.recvfrom()
+    print("< {}".format(resp))
+    
+
     '''
-    mess = "{\"id\": 3, \"type\": \"get_states\"}"
+    mess = "{\"id\": 23,\"type\": \"subscribe_events\"}"
     print (mess)    
     websocket.send(mess)
     resp = websocket.recv()
     print("< {}".format(resp))
     '''
-    #mess = "{'id': 4, 'type': 'subscribe_trigger','trigger': {'platform': 'state','entity_id': 'binary_sensor.motion_occupancy','from': 'off', 'to':'on'}"
-    mess = "{\"id\": 18,\"type\": \"subscribe_events\"}"
-    print (mess)    
-    websocket.send(mess)
-    resp = websocket.recv()
-    print("< {}".format(resp))
 
     while True:
-#    try:
       message = websocket.recv() # This is blocking
-      if len(message) > 0:
-          print (message)
-      # do what I need to do here
-#   except WebSocketClosedError:
-#      break
+      if message is None:
+        pass
+      else: 
+
+          if len(message) > 0:
+              outp = (json.loads(message))          
+              if "event" in outp:
+                if "data" in outp['event']:
+                  if "new_state" in outp['event']['data']:
+                    if "sensor.tempwithms" in outp['event']['data']['entity_id']:
+                      print("ent: " + outp['event']['data']['entity_id'])
+                      print(outp['event']['data']['new_state']['state'])
+                      value = outp['event']['data']['new_state']['state']
+                      print()
+                      display.text(font1, value, 20, 70, st7789.GREEN, st7789.BLACK)
+
+                      
+                    if "binary_sensor.ikea_of_sweden_tradfri_motion_sensor_16f699fe_on_off" in outp['event']['data']['entity_id']:
+                      print("ent: " + outp['event']['data']['entity_id'])
+                      print(outp['event']['data']['new_state']['state'])
+                      print()
+            
         
+        
+  mess = "{\"id\": 19,\"type\": \"unsubscribe_events\", \"subscription\": 18}"
+  print (mess)    
+  websocket.send(mess)
   websocket.close()
   return 1
  
@@ -134,3 +160,4 @@ if __name__ == "__main__":
     
 
         
+
