@@ -62,7 +62,6 @@ def urlparse(uri):
         return URI(match.group(1), int(match.group(2)), match.group(3))
 
 def connect():
-  #uri = "http://192.168.1.10:8123/api/websocket"
   uri = urlparse(config.host)
   print(uri)
   assert uri
@@ -80,7 +79,7 @@ def connect():
     print("< {}".format(greeting))
     
     tokenmess = "{\"type\":\"auth\",\"access_token\":\"" + config.token + "\"}"    
-    print (tokenmess)    
+    print ("Tokenmess: " + tokenmess)    
     websocket.send(tokenmess)
     resp = websocket.recv()
     print("< {}".format(resp))
@@ -92,18 +91,18 @@ def connect():
     resp = websocket.recv()
     print("< {}".format(resp))
 
-    '''
+    
     # We cant fetch all states, the response message is to large
-    statemess = "{\"id\": 21, \"type\": \"get_states\"}"
+    #statemess = "{\"id\": 21, \"type\": \"get_states\"}"
+    statemess = "{\"id\": 26, \"type\": \"get_single_entity\", \"entity_to_get\": \"media_player.vardagsrum\"}"
     #mess = "{\"id\": 22, \"type\": \"subscribe_events\"}"
     print (statemess)    
     websocket.send(statemess)
     resp = websocket.recv()
     print("< {}".format(resp))
     
-
-    '''
-    mess = "{\"id\": 23,\"type\": \"subscribe_events\"}"
+    
+    mess = "{\"id\": 28,\"type\": \"subscribe_events\"}"
     print (mess)    
     websocket.send(mess)
     resp = websocket.recv()
