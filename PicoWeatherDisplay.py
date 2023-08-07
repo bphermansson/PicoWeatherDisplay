@@ -25,10 +25,10 @@ import chango_32 as c32
 import boot
 import ure as re
 from ucollections import namedtuple
-import uwebsockets.client
 import json
 import time
 import config
+from urequests import get, post
 
 URL_RE = re.compile(r'http://([A-Za-z0-9\-\.]+)(?:\:([0-9]+))?(/.+)?')
 URI = namedtuple('URI', ('hostname', 'port', 'path'))
@@ -57,30 +57,64 @@ display = st7789.ST7789(spi1, disp_width, disp_height,
 
 def urlparse(uri):
     """Parse http:// URLs"""
+    
     match = URL_RE.match(uri)
     if match:
         return URI(match.group(1), int(match.group(2)), match.group(3))
-
+    
 def connect():
-  #uri = "http://192.168.1.10:8123/api/websocket"
-  uri = urlparse(config.host)
-  print(uri)
-  assert uri
-  path = uri.path or '/' + 'socket.io/?EIO=3'
+  #uri = urlparse(config.host)
+  #print("URI: " + uri)
+  
+  #curl   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI3YWQyZmQ0Y2U5NDA0ZD
+  #VkYjMzYTBhZWU1ZGQ2ODc4MCIsImlhdCI6MTY4ODYyNTkyMiwiZXhwIjoyMDAzOTg1OTIyfQ.rqs1s21lNIPPovpAjEP5wMvKOpTFdJdML-4LikOcc4Y"
+  #-H "Content-Type: application/json"   http://192.168.1.10:8123/api/states
+  
+  url = "http://192.168.1.10:8123/api/"
+  headers = {
+      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI3YWQyZmQ0Y2U5NDA0ZDVkYjMzYTBhZWU1ZGQ2ODc4MCIsImlhdCI6MTY4ODYyNTkyMiwiZXhwIjoyMDAzOTg1OTIyfQ.rqs1s21lNIPPovpAjEP5wMvKOpTFdJdML-4LikOcc4Y",
+      "content-type": "application/json",
+  }
+  response = get(url, headers=headers)
+  print(response.text)
+  
+  url = "http://192.168.1.10:8123/api/config/core/check_config"
+  response = post(url, headers=headers)
+  print(response.text)
+  
+  '''
+  # This doesnt fit in memory
+  url = "http://192.168.1.10:8123/api/states"
+  response = get(url, headers=headers)
+  print(response.text)
+  '''
+  url = "http://192.168.1.10:8123/api/states/sensor.satenas_luftfuktighet"
+  response = get(url, headers=headers)
+  print(response.text)
+  
+  
+  #print("< {}".format(response))
+  #outp = (json.loads(response))          
+  #print(outp[0].text)
+  #print(response.text)
+  
+  #assert uri
+  #path = uri.path or '/' + 'socket.io/?EIO=3'
 
+  '''
   ws_uri = 'ws://{hostname}:{port}{path}'.format(
       hostname=uri.hostname,
       port=uri.port,
       path=path)
   
   print("ws_uri: " + ws_uri)
- 
+  
   with uwebsockets.client.connect(ws_uri) as websocket:
     greeting = websocket.recv()
     print("< {}".format(greeting))
     
     tokenmess = "{\"type\":\"auth\",\"access_token\":\"" + config.token + "\"}"    
-    print (tokenmess)    
+    print ("Tokenmess: " + tokenmess)    
     websocket.send(tokenmess)
     resp = websocket.recv()
     print("< {}".format(resp))
@@ -92,18 +126,19 @@ def connect():
     resp = websocket.recv()
     print("< {}".format(resp))
 
-    '''
+
+    
     # We cant fetch all states, the response message is to large
-    statemess = "{\"id\": 21, \"type\": \"get_states\"}"
+    #statemess = "{\"id\": 21, \"type\": \"get_states\"}"
+    statemess = "{\"id\": 26, \"type\": \"get_single_entity\", \"entity_to_get\": \"media_player.vardagsrum\"}"
     #mess = "{\"id\": 22, \"type\": \"subscribe_events\"}"
     print (statemess)    
     websocket.send(statemess)
     resp = websocket.recv()
     print("< {}".format(resp))
     
-
-    '''
-    mess = "{\"id\": 23,\"type\": \"subscribe_events\"}"
+    
+    mess = "{\"id\": 28,\"type\": \"subscribe_events\"}"
     print (mess)    
     websocket.send(mess)
     resp = websocket.recv()
@@ -133,12 +168,12 @@ def connect():
                       print(outp['event']['data']['new_state']['state'])
                       print()
             
+     '''   
         
-        
-  mess = "{\"id\": 19,\"type\": \"unsubscribe_events\", \"subscription\": 18}"
-  print (mess)    
-  websocket.send(mess)
-  websocket.close()
+  #mess = "{\"id\": 19,\"type\": \"unsubscribe_events\", \"subscription\": 18}"
+  #print (mess)    
+  #websocket.send(mess)
+  #websocket.close()
   return 1
  
 def main():
