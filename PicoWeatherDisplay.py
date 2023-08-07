@@ -126,7 +126,10 @@ def connect():
     resp = websocket.recv()
     print("< {}".format(resp))
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8ba86a4706f3142b89a04d4b1c0553d9233648b9
     
     # We cant fetch all states, the response message is to large
     #statemess = "{\"id\": 21, \"type\": \"get_states\"}"
