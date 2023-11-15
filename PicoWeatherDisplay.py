@@ -1,4 +1,7 @@
 """
+Note: This is not finished as I couldnt get larger fonts to wor with the display. Therefor I used another solution.
+
+
 Pico Weather Display
 Download the file st7789py.py from https://github.com/russhughes/st7789py_mpy/tree/master/lib and
 open it in Thonny, then save it to the Pico.
